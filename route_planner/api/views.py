@@ -39,19 +39,53 @@ class RouteSer(serializers.Serializer):
     directions: typing.Callable
 
     def read_and_decode_geo(self, directions: dict[str, typing.Any]) -> dict[str, typing.Any]:
+        """It receives response from ORS directions service, it finds a geometry in the structure, and it decodes
+        it into geojson data structure with  all lines in there.
+
+        Args:
+            directions: response from ORS directions service
+
+        Returns:
+            geojson data structure {"type": "...", "coordinates": []}
+        """
         geometry = directions['routes'][0]['geometry']
         return convert.decode_polyline(geometry)
     def convert_to_polyline(self, geojson: dict[str, typing.Any]) -> Iterator[tuple[float, float]]:
+        """It just switches the positions of latitude and longitude. ORS library has different
+        order than the folium library which is used to render the map.
+
+        Args:
+            geojson: it is product of ORS library - the decoded geometry of the found route
+
+        Returns:
+            generator of lines with switched latitude and longitude that latitude is now the first in a tuple.
+        """
         for polyline in geojson["coordinates"]:
             yield polyline[1], polyline[0]
 
-    def read_map_location(self, geojson: dict[str, typing.Any]) -> tuple[float, float]:
-        half_pos = round(len(geojson["coordinates"]) / 2)
-        index = half_pos - 1 if half_pos > 0 else half_pos
-        location = geojson["coordinates"][index]
-        return location[1], location[0]
+    # def read_map_location(self, geojson: dict[str, typing.Any]) -> tuple[float, float]:
+    #     """To be able to set suitable zoom for generated map, we need to know some point(location)
+    #     in the middle...
+    #
+    #     Args:
+    #         geojson: it is product of ORS library - the decoded geometry of the found route
+    #     Returns:
+    #         a location coordinates for the centre of generated map
+    #     """
+    #     half_pos = round(len(geojson["coordinates"]) / 2)
+    #     index = half_pos - 1 if half_pos > 0 else half_pos
+    #     location = geojson["coordinates"][index]
+    #     return location[1], location[0]
 
     def prepare_coords(self, validated_data: dict[str, typing.Any]) -> tuple[tuple[float, float], tuple[float, float]]:
+        """It just auxiliary function to prepare input parameters for ORS call from validated data
+
+        Args:
+            validated_data: data validated in serializer
+
+        Returns:
+            coordination of starting and finishing waypoints
+        """
         return (
             (
                 validated_data["start"]["long"],
@@ -63,8 +97,17 @@ class RouteSer(serializers.Serializer):
             )
         )
 
-    def create_map(self, polylines: typing.Iterator[tuple[float, float]], location: tuple[float, float]) -> str:
-        created_map = folium.Map(location=location, title="Found route")
+    def create_map(self, polylines: typing.Iterator[tuple[float, float]]) -> str:
+        """It creates a map with folium library and set zoom according to found route.
+        It is saved as HTML with default storage, so it returns a file path of it.
+
+        Args:
+            polylines: found route
+
+        Returns:
+            map file path
+        """
+        created_map = folium.Map(title="Found route")
         pl = folium.PolyLine(polylines, tooltip="Driving path").add_to(created_map)
         created_map.fit_bounds(pl.get_bounds())
         buffer = io.BytesIO()
@@ -73,6 +116,7 @@ class RouteSer(serializers.Serializer):
         return default_storage.save("found_route.html", buffer)
 
     def save(self, **kwargs):
+        # somewhere it is need to set client of ORS
         self.directions = getattr(opens.Client(key=settings.ROUTE["api_key"]), "directions")
         return super().save(**kwargs)
 
@@ -80,7 +124,7 @@ class RouteSer(serializers.Serializer):
         directions = self.directions(self.prepare_coords(validated_data), profile=settings.ROUTE["profile"])
         geojson = self.read_and_decode_geo(directions)
         polylines = self.convert_to_polyline(geojson)
-        file_path_map = self.create_map(polylines, self.read_map_location(geojson))
+        file_path_map = self.create_map(polylines)
         return {"route": {"map": self.context["request"].build_absolute_uri(settings.MEDIA_URL + file_path_map)}}
 
 
