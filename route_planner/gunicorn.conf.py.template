@@ -1,0 +1,29 @@
+def on_starting(server):
+    import sys, subprocess
+
+    for command in [("migrate",), ("compilemessages",), ("collectstatic", "--noinput")]:
+        result = subprocess.run([
+                sys.executable,
+                "manage.py",
+                *command
+            ],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode:
+            print(result.stderr.strip())
+        else:
+            print(result.stdout.strip())
+
+proc_name = "gunicorn:route_planner"
+wsgi_app = "route_planner.wsgi"
+reload = True
+reload_extra_files = ["xxx", "yyy"]
+bind = "127.0.0.1:8000"
+worker_class = "gevent"
+workers = 1
+worker_connections = 10
+timeout = 5
+accesslog = "xxx"
+errorlog = "yyy"
+loglevel = "warning"
