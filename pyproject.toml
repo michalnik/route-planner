@@ -44,6 +44,7 @@ dev = [
     "pytest",
     "pytest-django",
     "mypy",
+    "pre-commit",
     "faker",
     "django-stubs[compatible-mypy]",
     "djangorestframework-stubs[compatible-mypy]",
