@@ -13,7 +13,7 @@ name = "route-planner"
 description="Route Planner"
 dynamic = ["version"]
 authors = [
-    {name = "Michal Mládek", email = "michal.mladek.78@gmail.com"}
+    {name = "Michal Mládek", email = "osvc.04923031@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
@@ -26,12 +26,11 @@ classifiers = [
 dependencies = [
     "requests",
     "python-dotenv",
-    "python-dateutil",
+    #"python-dateutil",
     "django",
     "django-extensions",
-    "django-filter",
+    #"django-filter",
     "djangorestframework",
-    "drf-spectacular",
     "folium",
     "openrouteservice",
 ]
@@ -41,15 +40,15 @@ dev = [
     "ipython",
     "flake8",
     "isort",
-    "pytest",
-    "pytest-django",
+    #"pytest",
+    #"pytest-django",
     "mypy",
     "pre-commit",
-    "faker",
+    #"faker",
     "django-stubs[compatible-mypy]",
     "djangorestframework-stubs[compatible-mypy]",
-    "markdown",
-    "rich"
+    #"markdown",
+    #"rich"
 ]
 prod = ["gunicorn[gevent]"]
 
