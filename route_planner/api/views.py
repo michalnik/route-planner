@@ -1,6 +1,46 @@
-from rest_framework import generics, response, status
+from rest_framework import generics, response, status, exceptions
+from ninja import Schema, NinjaAPI
 
+from .aliases import Point, Routes
+from .services import RoutePlannerService
 from .serializers import RouteSer
+
+
+api = NinjaAPI(
+    title="Route Planner",
+    version="v2",
+    description=(
+        "Route planner API to find routes from **start** to **finish**. "
+        "Final map with route drawn on it is then downloadable as HTML."
+    ),
+)
+
+
+@api.exception_handler(exceptions.ValidationError)
+def validation_errors(request, exception):
+    return api.create_response(request, exception.detail, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RouteQuestion(Schema):
+    start: Point
+    finish: Point
+
+
+class RoutesAnswer(Schema):
+    start: Point
+    finish: Point
+    routes: Routes
+
+
+@api.post("/", response=RoutesAnswer, tags=["Routes"])
+def get_routes(request, route: RouteQuestion):
+    route_service = RoutePlannerService()
+    route_service.find_routes(route.start, route.finish)
+    return {
+        "start": route.start,
+        "finish": route.finish,
+        "routes": route_service.find_routes(route.start, route.finish),
+    }
 
 
 class RouteFind(generics.GenericAPIView):

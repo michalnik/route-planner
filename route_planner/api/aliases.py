@@ -2,8 +2,8 @@ from typing import TypeAlias, TypedDict
 
 
 class Point(TypedDict):
-    lat: float | None
-    long: float | None
+    lat: float
+    long: float
 
 
 class RouteSummary(TypedDict):
@@ -25,7 +25,7 @@ class Segment(RouteSummary):
     steps: list[Step]
 
 
-Coordinate: TypeAlias = tuple[float | None, float | None]
+Coordinate: TypeAlias = tuple[float, float]
 BoundingBox: TypeAlias = tuple[Coordinate, Coordinate]
 ORSBoundingBox: TypeAlias = list[float]
 

@@ -13,7 +13,7 @@ osr_client = Client(
 )
 
 
-def load_routes(coordinates: BoundingBox, include_bbox: bool = False, include_metadata: bool = False) -> Directions:
+def find_routes(coordinates: BoundingBox, include_bbox: bool = False, include_metadata: bool = False) -> Directions:
     """
     It receives coordinates of start and end of a required path and returns
     the created map with desired filename in it, resp. it returns path to HTML map on the file system

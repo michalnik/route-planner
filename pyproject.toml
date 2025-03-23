@@ -28,6 +28,7 @@ dependencies = [
     "python-dotenv",
     #"python-dateutil",
     "django",
+    "django-ninja",
     "django-extensions",
     #"django-filter",
     "djangorestframework",

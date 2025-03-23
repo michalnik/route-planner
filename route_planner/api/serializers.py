@@ -12,16 +12,6 @@ class Location(serializers.Serializer):
         help_text=("Longitude - angel between -180° western hemisphere" "and 180° eastern hemisphere.")
     )
 
-    def validate_lat(self, value: float) -> float:
-        if value < -90 or value > 90:
-            raise serializers.ValidationError("Latitude is out of range.")
-        return value
-
-    def validate_long(self, value: float) -> float:
-        if value < -180 or value > 180:
-            raise serializers.ValidationError("Longitude is out of range.")
-        return value
-
 
 class Route(serializers.Serializer):
     map = serializers.FileField(help_text="URL of rendered HTML map.")

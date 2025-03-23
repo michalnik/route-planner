@@ -21,6 +21,9 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework.reverse import reverse_lazy
 
+from api.views import api
+
+
 urlpatterns = [
     path(
         "",
@@ -30,6 +33,7 @@ urlpatterns = [
         ),
     ),
     path("api/<str:api_ver>/", include(("api.urls", "main"))),
+    path(f"ninja/{api.version}/", api.urls),
     path("admin/", admin.site.urls),
 ]
 if settings.DEBUG:

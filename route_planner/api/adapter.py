@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from django.core.files.storage import default_storage, Storage
 
 from .aliases import Point, BoundingBox, Route, ORSPoint, GeoJson
-from .ors import load_routes as ors_load_routes, extract_points as ors_extract_points
+from .ors import find_routes as ors_find_routes, extract_points as ors_extract_points
 
 
 @dataclass
@@ -24,7 +24,7 @@ class File:
             self.url = self._storage.url(self.name)
 
 
-def load_routes(start: Point, finish: Point) -> Iterator[Route]:
+def find_routes(start: Point, finish: Point) -> Iterator[Route]:
     """It is just adapter to prepare input parameters for ORS call from validated data
 
     Args:
@@ -44,7 +44,7 @@ def load_routes(start: Point, finish: Point) -> Iterator[Route]:
             finish["lat"],
         ),
     )
-    for route in ors_load_routes(coordinates)["routes"]:
+    for route in ors_find_routes(coordinates)["routes"]:
         yield route
 
 
@@ -98,7 +98,7 @@ def create_map(
     created_map = folium.Map(title=title)
     drawn_polyline: folium.PolyLine | None = None
     gj_iterable: Iterator[ORSPoint]
-    for route in load_routes(start, finish):
+    for route in find_routes(start, finish):
         geojson: GeoJson = extract_points(route)
         gj_iterable = geojson_iterable(geojson)
         drawn_polyline = folium.PolyLine(gj_iterable, tooltip=route_title)
