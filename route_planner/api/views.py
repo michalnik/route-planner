@@ -1,5 +1,7 @@
 from rest_framework import generics, response, status, exceptions
-from ninja import Schema, NinjaAPI
+from ninja import Schema, NinjaAPI, throttling
+
+from django.conf import settings
 
 from .aliases import Point, Routes
 from .services import RoutePlannerService
@@ -13,6 +15,10 @@ api = NinjaAPI(
         "Route planner API to find routes from **start** to **finish**. "
         "Final map with route drawn on it is then downloadable as HTML."
     ),
+    throttle=[
+        throttling.AnonRateThrottle(settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["anon"]),
+        throttling.UserRateThrottle(settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["user"]),
+    ],
 )
 
 
@@ -34,6 +40,28 @@ class RoutesAnswer(Schema):
 
 @api.post("/", response=RoutesAnswer, tags=["Routes"])
 def get_routes(request, route: RouteQuestion):
+    """### Call parameters
+    - **start** route location
+    - **finish** route location (both within the **USA**)
+
+    ### Call result
+    - includes start end finish points of the requested routes
+    - textual representation of the all found routes
+
+    Example:
+    ```json
+    {
+        "start": {
+            "lat": 40.658714,
+            "long": -73.801984
+        },
+        "finish": {
+            "lat": 33.948344,
+            "long": -118.395067
+        }
+    }
+    ```
+    """
     route_service = RoutePlannerService()
     route_service.find_routes(route.start, route.finish)
     return {
