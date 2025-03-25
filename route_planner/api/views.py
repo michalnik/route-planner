@@ -57,11 +57,10 @@ def get_routes(request, route: RouteQuestion):
     }
     ```
     """
-    route_service = RoutePlannerService()
     return {
         "start": route.start,
         "finish": route.finish,
-        "routes": route_service.find_routes(route.start, route.finish),
+        "routes": RoutePlannerService().find_routes(route.start, route.finish),
     }
 
 
