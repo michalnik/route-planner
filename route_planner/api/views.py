@@ -3,7 +3,7 @@ from ninja import Schema, NinjaAPI, throttling
 
 from django.conf import settings
 
-from .aliases import Point, Routes
+from .aliases import Point, Routes, GeoJson
 from .services import RoutePlannerService
 from .serializers import RouteSer
 
@@ -33,8 +33,8 @@ class RoutesAnswer(Schema):
     routes: Routes
 
 
-@api.post("/", response=RoutesAnswer, tags=["Routes"])
-def get_routes(request, route: RouteQuestion):
+@api.post("/routes", response=RoutesAnswer, tags=["Routes"])
+def find_routes(request, route: RouteQuestion):
     """### Call parameters
     - **start** route location
     - **finish** route location (both within the **USA**)
@@ -62,6 +62,34 @@ def get_routes(request, route: RouteQuestion):
         "finish": route.finish,
         "routes": RoutePlannerService().find_routes(route.start, route.finish),
     }
+
+
+class GeoJsonQuestion(Schema):
+    geometry: str
+
+
+class GeoJsonAnswer(Schema):
+    geojson: GeoJson
+
+
+@api.post("/geojson", response=GeoJsonAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
+def extract_geojson(request, route: GeoJsonQuestion):
+    """### Call parameters
+    - **geometry** geometry string read from route data structure returned from `/routes` endpoint.
+
+    ### Call result
+    - geojson structure
+        - type = "LineString"
+        - coordinates: list of Open Route Service points(coordinates)
+
+    Example:
+    ```json
+    {
+    "geometry": "cddwFbomaM..."
+    }
+    ```
+    """
+    return {"geojson": RoutePlannerService().extract_geojson(route.geometry)}
 
 
 class RouteFind(generics.GenericAPIView):
