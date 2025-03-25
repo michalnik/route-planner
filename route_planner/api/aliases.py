@@ -1,9 +1,17 @@
 from typing import TypeAlias, TypedDict
+from pydantic import BaseModel, Field
 
 
-class Point(TypedDict):
-    lat: float
-    long: float
+class Point(BaseModel):
+    lat: float = Field(
+        default=0.0, ge=-90, le=90, description="Latitude - angel between -90° south pole and 90° north pole."
+    )
+    long: float = Field(
+        default=0.0,
+        ge=-180,
+        le=180,
+        description="Longitude - angel between -180° western hemisphere" "and 180° eastern hemisphere.",
+    )
 
 
 class RouteSummary(TypedDict):

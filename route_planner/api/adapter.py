@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator, Any
 import folium
 from dataclasses import dataclass
 from openrouteservice.exceptions import ApiError
@@ -7,6 +7,19 @@ from django.core.files.storage import default_storage, Storage
 
 from .aliases import Point, BoundingBox, Route, Routes, ORSPoint, GeoJson
 from .ors import find_routes as ors_find_routes, extract_points as ors_extract_points
+
+
+class ORSException(Exception):
+    code: str
+    message: str
+    data: Any
+    status: int
+
+    def __init__(self, status: int, code: str, message: str, data: Any):
+        self.code = code
+        self.message = message
+        self.data = data
+        self.status = status
 
 
 @dataclass
@@ -37,18 +50,15 @@ def find_routes(start: Point, finish: Point) -> Routes:
     """
     coordinates: BoundingBox = (
         (
-            start["long"],
-            start["lat"],
+            start.long,
+            start.lat,
         ),
-        (
-            finish["long"],
-            finish["lat"],
-        ),
+        (finish.long, finish.lat),
     )
     try:
         return ors_find_routes(coordinates)["routes"]
     except ApiError as exc:
-        raise ValueError(exc.status, exc.message)
+        raise ORSException(exc.status, "ors_exception", "Open Route Service exception", exc.message)
 
 
 def extract_points(route: Route) -> GeoJson:

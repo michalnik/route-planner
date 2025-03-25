@@ -13,7 +13,7 @@ class Location(serializers.Serializer):
     long = serializers.FloatField(
         min_value=-180.0,
         max_value=180.0,
-        help_text=("Longitude - angel between -180° western hemisphere" "and 180° eastern hemisphere."),
+        help_text="Longitude - angel between -180° western hemisphere" "and 180° eastern hemisphere.",
     )
 
 

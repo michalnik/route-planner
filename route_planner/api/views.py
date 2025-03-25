@@ -1,12 +1,9 @@
-import typing
-
 from rest_framework import generics, response, status
 from ninja import Schema, NinjaAPI, throttling
 
 from django.conf import settings
 
 from .aliases import Point, Routes
-from .validators import ValidationException
 from .services import RoutePlannerService
 from .serializers import RouteSer
 
@@ -23,16 +20,6 @@ api = NinjaAPI(
         throttling.UserRateThrottle(settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["user"]),
     ],
 )
-
-
-@api.exception_handler(ValidationException)
-def validation_errors(request, exception):
-    detail: dict[str, typing.Any] = {
-        "code": exception.code,
-        "message": exception.message,
-        "data": exception.data,
-    }
-    return api.create_response(request, detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RouteQuestion(Schema):
