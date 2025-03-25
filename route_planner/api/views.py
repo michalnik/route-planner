@@ -1,9 +1,12 @@
-from rest_framework import generics, response, status, exceptions
+import typing
+
+from rest_framework import generics, response, status
 from ninja import Schema, NinjaAPI, throttling
 
 from django.conf import settings
 
 from .aliases import Point, Routes
+from .validators import ValidationException
 from .services import RoutePlannerService
 from .serializers import RouteSer
 
@@ -22,9 +25,14 @@ api = NinjaAPI(
 )
 
 
-@api.exception_handler(exceptions.ValidationError)
+@api.exception_handler(ValidationException)
 def validation_errors(request, exception):
-    return api.create_response(request, exception.detail, status=status.HTTP_400_BAD_REQUEST)
+    detail: dict[str, typing.Any] = {
+        "code": exception.code,
+        "message": exception.message,
+        "data": exception.data,
+    }
+    return api.create_response(request, detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RouteQuestion(Schema):
@@ -63,7 +71,6 @@ def get_routes(request, route: RouteQuestion):
     ```
     """
     route_service = RoutePlannerService()
-    route_service.find_routes(route.start, route.finish)
     return {
         "start": route.start,
         "finish": route.finish,

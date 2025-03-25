@@ -1,10 +1,11 @@
 from typing import Iterator
 import folium
 from dataclasses import dataclass
+from openrouteservice.exceptions import ApiError
 
 from django.core.files.storage import default_storage, Storage
 
-from .aliases import Point, BoundingBox, Route, ORSPoint, GeoJson
+from .aliases import Point, BoundingBox, Route, Routes, ORSPoint, GeoJson
 from .ors import find_routes as ors_find_routes, extract_points as ors_extract_points
 
 
@@ -24,7 +25,7 @@ class File:
             self.url = self._storage.url(self.name)
 
 
-def find_routes(start: Point, finish: Point) -> Iterator[Route]:
+def find_routes(start: Point, finish: Point) -> Routes:
     """It is just adapter to prepare input parameters for ORS call from validated data
 
     Args:
@@ -44,8 +45,10 @@ def find_routes(start: Point, finish: Point) -> Iterator[Route]:
             finish["lat"],
         ),
     )
-    for route in ors_find_routes(coordinates)["routes"]:
-        yield route
+    try:
+        return ors_find_routes(coordinates)["routes"]
+    except ApiError as exc:
+        raise ValueError(exc.status, exc.message)
 
 
 def extract_points(route: Route) -> GeoJson:

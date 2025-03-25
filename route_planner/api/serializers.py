@@ -7,9 +7,13 @@ from .adapter import create_map, File
 
 
 class Location(serializers.Serializer):
-    lat = serializers.FloatField(help_text="Latitude - angel between -90° south pole and 90° north pole.")
+    lat = serializers.FloatField(
+        min_value=-90.0, max_value=90.0, help_text="Latitude - angel between -90° south pole and 90° north pole."
+    )
     long = serializers.FloatField(
-        help_text=("Longitude - angel between -180° western hemisphere" "and 180° eastern hemisphere.")
+        min_value=-180.0,
+        max_value=180.0,
+        help_text=("Longitude - angel between -180° western hemisphere" "and 180° eastern hemisphere."),
     )
 
 

@@ -4,15 +4,28 @@ import functools
 from .aliases import Point
 
 
+class ValidationException(Exception):
+    def __init__(self, code: str, message: str, data: typing.Any):
+        self.code = code
+        self.message = message
+        self.data = data
+
+    def __repr__(self):
+        return f"Validation Error: code {self.code}, message <{self.message}>"
+
+
 class ValidateRoute:
-    def __init__(self, exception: typing.Callable):
-        self.exception = exception
 
     def __call__(self, service_call: typing.Callable):
         @functools.wraps(service_call)
         def validator(instance, start: Point, finish: Point, *args, **kwargs):
             self.validate(start, finish)
-            return service_call(instance, start, finish, *args, **kwargs)
+            try:
+                # TODO: consider if it would have worth to handle generator pattern (for i in generator: yield ...)
+                #       currently, I decided handling simple return is enough for now
+                return service_call(instance, start, finish, *args, **kwargs)
+            except ValueError as exc:
+                raise ValidationException("ors_exception", "Open route service API exception", exc.args[1])
 
         return validator
 
@@ -26,7 +39,7 @@ class ValidateRoute:
                 for field_name, args in exc.args:
                     errors[name].update({field_name: {"message": args[0], "value": args[1]}})
         if errors:
-            raise self.exception(errors)
+            raise ValidationException("invalid_arguments", "Invalid arguments", errors)
 
     def validate_point(self, value: Point):
         errors: list[tuple[str, tuple[str, float, str]]] | list = []
