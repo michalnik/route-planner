@@ -93,6 +93,30 @@ def geojson_iterable(geo_json: GeoJson, reverse: bool = True) -> Iterator[ORSPoi
         yield from geo_json["coordinates"]
 
 
+def create_map_from_geojson(
+    geojson: GeoJson, title: str, route_title: str, created_map: folium.Map | None = None
+) -> folium.Map:
+    """It creates HTML map with route which is passed via geojson string.
+     Map title and route title can be set.
+
+    Args:
+        geojson: GeoJson structure
+        title: map title
+        route_title: route tooltip
+        created_map: instance of folium.Map class
+
+    Returns:
+        created map
+    """
+    if created_map is not None:
+        created_map = folium.Map(title=title)
+    gj_iterable = geojson_iterable(geojson)
+    drawn_polyline: folium.PolyLine = folium.PolyLine(gj_iterable, tooltip=route_title)
+    created_map.add_child(drawn_polyline)
+    created_map.fit_bounds(drawn_polyline.get_bounds())
+    return created_map
+
+
 def create_map(
     start: Point, finish: Point, title: str = "Found routes", route_title: str = "Driving path"
 ) -> folium.Map:
@@ -109,15 +133,8 @@ def create_map(
         generated HTML map
     """
     created_map = folium.Map(title=title)
-    drawn_polyline: folium.PolyLine | None = None
-    gj_iterable: Iterator[ORSPoint]
-    for route in find_routes(start, finish):
+    routes: Routes = find_routes(start, finish)
+    for route in routes:
         geojson: GeoJson = extract_points(route)
-        gj_iterable = geojson_iterable(geojson)
-        drawn_polyline = folium.PolyLine(gj_iterable, tooltip=route_title)
-        created_map.add_child(drawn_polyline)
-    else:
-        if drawn_polyline is not None:
-            # center map on last polyline
-            created_map.fit_bounds(drawn_polyline.get_bounds())
+        create_map_from_geojson(geojson, title, route_title, created_map)
     return created_map

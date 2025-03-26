@@ -3,6 +3,7 @@ import folium
 
 from rest_framework import serializers
 
+from .aliases import Point
 from .adapter import create_map, File
 
 
@@ -27,5 +28,7 @@ class RouteSer(serializers.Serializer):
     route = Route(read_only=True)
 
     def create(self, validated_data: dict[str, typing.Any]) -> dict[str, typing.Any]:
-        created_map: folium.Map = create_map(validated_data["start"], validated_data["finish"])
+        start: Point = Point(**validated_data["start"])
+        finish: Point = Point(**validated_data["finish"])
+        created_map: folium.Map = create_map(start, finish)
         return {"route": {"map": File("found_route.html", created_map)}}
