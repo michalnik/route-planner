@@ -1,9 +1,17 @@
 from rest_framework import generics, response, status
-from ninja import Schema, NinjaAPI, throttling
+from ninja import NinjaAPI, throttling
 
 from django.conf import settings
 
-from .aliases import Point, Routes, GeoJson
+from .schema import (
+    RouteQuestion,
+    RoutesAnswer,
+    GeoJsonQuestion,
+    GeoJsonAnswer,
+    MapFromGeoJsonQuestion,
+    MapQuestion,
+    MapAnswer,
+)
 from .services import RoutePlannerService
 from .serializers import RouteSer
 
@@ -20,17 +28,6 @@ api = NinjaAPI(
         throttling.UserRateThrottle(settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["user"]),
     ],
 )
-
-
-class RouteQuestion(Schema):
-    start: Point
-    finish: Point
-
-
-class RoutesAnswer(Schema):
-    start: Point
-    finish: Point
-    routes: Routes
 
 
 @api.post("/routes", response=RoutesAnswer, tags=["Routes"])
@@ -64,14 +61,6 @@ def find_routes(request, route: RouteQuestion):
     }
 
 
-class GeoJsonQuestion(Schema):
-    geometry: str
-
-
-class GeoJsonAnswer(Schema):
-    geojson: GeoJson
-
-
 @api.post("/geojson", response=GeoJsonAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
 def extract_geojson(request, route: GeoJsonQuestion):
     """### Call parameters
@@ -90,6 +79,46 @@ def extract_geojson(request, route: GeoJsonQuestion):
     ```
     """
     return {"geojson": RoutePlannerService().extract_geojson(route.geometry)}
+
+
+@api.post("/map_from_geojson", response=MapAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
+def map_from_geo_json(request, query: MapFromGeoJsonQuestion):
+    """### Call parameters
+    - **geojson** data structure of route returned from `/geojson` endpoint.
+    - **title** title of the map
+    - **route_title** title of the route
+    - **filename** filename of the map
+
+    ### Call result
+    - map: URL of the map
+    """
+    file = RoutePlannerService().map_from_geojson(
+        query.geojson,
+        title=query.title,
+        route_title=query.route_title,
+        filename=query.filename,
+    )
+    return {"map": request.build_absolute_uri(file.url)}
+
+
+@api.post("/map", response=MapAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
+def create_map(request, query: MapQuestion):
+    """### Call parameters
+    - **start** route location
+    - **finish** route location (both within the **USA**)
+    - **title** title of the map
+    - **route_title** title of the route
+
+    ### Call result
+    - map: URL of the map
+    """
+    file = RoutePlannerService().create_map(
+        query.start,
+        query.finish,
+        query.title,
+        query.route_title,
+    )
+    return {"map": request.build_absolute_uri(file.url)}
 
 
 class RouteFind(generics.GenericAPIView):

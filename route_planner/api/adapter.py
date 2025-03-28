@@ -108,7 +108,7 @@ def create_map_from_geojson(
     Returns:
         created map
     """
-    if created_map is not None:
+    if created_map is None:
         created_map = folium.Map(title=title)
     gj_iterable = geojson_iterable(geojson)
     drawn_polyline: folium.PolyLine = folium.PolyLine(gj_iterable, tooltip=route_title)
