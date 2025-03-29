@@ -25,13 +25,10 @@ classifiers = [
 ]
 dependencies = [
     "requests",
-    #"injector",
     "python-dotenv",
-    #"python-dateutil",
     "django",
     "django-ninja",
     "django-extensions",
-    #"django-filter",
     "djangorestframework",
     "folium",
     "openrouteservice",
@@ -42,18 +39,13 @@ dev = [
     "ipython",
     "flake8",
     "isort",
-    #"pytest",
-    #"pytest-django",
     "mypy",
     "pre-commit",
-    #"faker",
     "django-stubs[compatible-mypy]",
     "djangorestframework-stubs[compatible-mypy]",
-    #"markdown",
-    #"rich"
 ]
 prod = ["gunicorn[gevent]"]
 
 [project.urls]
-homepage = "https://route-planner.softorks.eu"
+homepage = "https://route.softorks.eu"
 repository = "https://github.com/michalnik/route-planner"
