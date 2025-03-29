@@ -61,7 +61,7 @@ def find_routes(request, route: RouteQuestion):
     }
 
 
-@api.post("/geojson", response=GeoJsonAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
+@api.post("/geojson", response=GeoJsonAnswer, tags=["Routes"])
 def extract_geojson(request, route: GeoJsonQuestion):
     """### Call parameters
     - **geometry** geometry string read from route data structure returned from `/routes` endpoint.
@@ -81,7 +81,7 @@ def extract_geojson(request, route: GeoJsonQuestion):
     return {"geojson": RoutePlannerService().extract_geojson(route.geometry)}
 
 
-@api.post("/map_from_geojson", response=MapAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
+@api.post("/map_from_geojson", response=MapAnswer, tags=["Routes"])
 def map_from_geo_json(request, query: MapFromGeoJsonQuestion):
     """### Call parameters
     - **geojson** data structure of route returned from `/geojson` endpoint.
@@ -101,7 +101,7 @@ def map_from_geo_json(request, query: MapFromGeoJsonQuestion):
     return {"map": request.build_absolute_uri(file.url)}
 
 
-@api.post("/map", response=MapAnswer, tags=["Routes"], throttle=[throttling.AnonRateThrottle("5/m")])
+@api.post("/map", response=MapAnswer, tags=["Routes"])
 def create_map(request, query: MapQuestion):
     """### Call parameters
     - **start** route location

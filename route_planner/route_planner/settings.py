@@ -161,8 +161,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": f'{int_val.to_python(os.getenv("THROTTLE_RATES_ANON_DAY"))}/day',
-        "user": f'{int_val.to_python(os.getenv("THROTTLE_RATES_USER_DAY"))}/day',
+        "anon": f'{int_val.to_python(os.getenv("THROTTLE_RATES_ANON_MIN"))}/min',
+        "user": f'{int_val.to_python(os.getenv("THROTTLE_RATES_USER_MIN"))}/min',
     },
 }
 
