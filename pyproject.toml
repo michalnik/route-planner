@@ -30,6 +30,8 @@ dependencies = [
     "django-ninja",
     "django-extensions",
     "djangorestframework",
+    "django-stubs[compatible-mypy]",
+    "djangorestframework-stubs[compatible-mypy]",
     "folium",
     "openrouteservice",
     "markdown"
@@ -42,8 +44,6 @@ dev = [
     "isort",
     "mypy",
     "pre-commit",
-    "django-stubs[compatible-mypy]",
-    "djangorestframework-stubs[compatible-mypy]",
 ]
 prod = ["gunicorn[gevent]"]
 
