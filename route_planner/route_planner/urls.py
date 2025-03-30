@@ -29,7 +29,7 @@ urlpatterns = [
         "",
         RedirectView.as_view(
             url=reverse_lazy("main:route-find", kwargs={"api_ver": settings.REST_FRAMEWORK["DEFAULT_VERSION"]}),
-            permanent=True,
+            permanent=False,  # to not to cache redirect in browser
         ),
     ),
     path("api/<str:api_ver>/", include(("api.urls", "main"))),
