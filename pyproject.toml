@@ -12,9 +12,7 @@ version_file = "route_planner/route_planner/__init__.py"
 name = "route-planner"
 description="Route Planner"
 dynamic = ["version"]
-authors = [
-    {name = "Michal Mládek", email = "osvc.04923031@gmail.com"}
-]
+authors = [{name = "Michal Mládek"}, {email = "osvc.04923031@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.13"
 keywords = ["maps", "internet", "traffic", "route"]
@@ -36,6 +34,9 @@ dependencies = [
     "openrouteservice",
     "markdown"
 ]
+
+[project.license]
+file = "LICENSE"
 
 [project.optional-dependencies]
 dev = [
