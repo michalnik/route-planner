@@ -1,6 +1,11 @@
 # route-planner
 API to build route from start to end (location)
 
+# description
+It is already deployed at [route.softorks.eu](https://route.softorks.eu). There are 2 versions
+1. simplified browsable [REST API (Django Rest Framework)](https://route.softorks.eu/api/v1/)
+2. with more endpoints to use [REST API (Django Ninja)](https://route.softorks.eu/ninja/v2/docs)
+
 ## License
 This project is licensed under the MIT License.
 
