@@ -24,6 +24,8 @@ classifiers = [
 dependencies = [
     "requests",
     "python-dotenv",
+    "fastapi",
+    "uvicorn",
     "django",
     "django-ninja",
     "django-extensions",
@@ -32,7 +34,7 @@ dependencies = [
     "djangorestframework-stubs[compatible-mypy]",
     "folium",
     "openrouteservice",
-    "markdown"
+    "markdown",
 ]
 
 [project.license]
@@ -40,6 +42,8 @@ file = "LICENSE"
 
 [project.optional-dependencies]
 dev = [
+    "fastapi[standard]",
+    "uvicorn[standard]",
     "ipython",
     "flake8",
     "isort",
