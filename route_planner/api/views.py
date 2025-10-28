@@ -1,9 +1,11 @@
+import typing
 from rest_framework import generics, response, status
 from ninja import NinjaAPI, throttling
 
 from django.conf import settings
 
-from .schema import (
+from .adapter import ORSException
+from .ninja_schema import (
     RouteQuestion,
     RoutesAnswer,
     GeoJsonQuestion,
@@ -54,6 +56,15 @@ def find_routes(request, route: RouteQuestion):
     }
     ```
     """
+    from ninja.errors import ValidationError
+
+    try:
+        RoutePlannerService().find_routes(route.start, route.finish)
+    except ORSException as exc:
+        error_details: list[dict[str, typing.Any]] = [
+            {"msg": exc.message, "type": exc.code, "ctx": {"status": exc.status, "error": exc.data}}
+        ]
+        raise ValidationError(error_details)
     return {
         "start": route.start,
         "finish": route.finish,
@@ -150,7 +161,15 @@ class RouteFind(generics.GenericAPIView):
     serializer_class = RouteSer
 
     def post(self, request, api_ver=None):
+        from rest_framework.exceptions import ValidationError
+
         ser = self.get_serializer(data=request.data)
         ser.is_valid(raise_exception=True)
-        ser.save()
+        try:
+            ser.save()
+        except ORSException as exc:
+            error_details: list[dict[str, typing.Any]] = [
+                {"msg": exc.message, "type": exc.code, "ctx": {"status": exc.status, "error": exc.data}}
+            ]
+            raise ValidationError(error_details)
         return response.Response(data=ser.data, status=status.HTTP_201_CREATED)
