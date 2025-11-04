@@ -1,5 +1,5 @@
 import typing
-from rest_framework import generics, response, status
+from rest_framework import mixins, viewsets
 from ninja import NinjaAPI, throttling
 
 from django.conf import settings
@@ -122,6 +122,22 @@ def create_map(request, query: MapQuestion):
 
     ### Call result
     - map: URL of the map
+
+     Example:
+    ```json
+    {
+        "start": {
+            "lat": 40.658714,
+            "long": -73.801984
+        },
+        "finish": {
+            "lat": 33.948344,
+            "long": -118.395067
+        },
+        "title": "Which is my way?",
+        "route_title": "Route from east to west!"
+    }
+    ```
     """
     file = RoutePlannerService().create_map(
         query.start,
@@ -132,7 +148,7 @@ def create_map(request, query: MapQuestion):
     return {"map": request.build_absolute_uri(file.url)}
 
 
-class RouteFind(generics.GenericAPIView):
+class RoutesViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     """### Call parameters
     - **start** route location
     - **finish** route location (both within the **USA**)
@@ -160,11 +176,9 @@ class RouteFind(generics.GenericAPIView):
 
     serializer_class = RouteSer
 
-    def post(self, request, api_ver=None):
+    def perform_create(self, ser: RouteSer):
         from rest_framework.exceptions import ValidationError
 
-        ser = self.get_serializer(data=request.data)
-        ser.is_valid(raise_exception=True)
         try:
             ser.save()
         except ORSException as exc:
@@ -172,4 +186,3 @@ class RouteFind(generics.GenericAPIView):
                 {"msg": exc.message, "type": exc.code, "ctx": {"status": exc.status, "error": exc.data}}
             ]
             raise ValidationError(error_details)
-        return response.Response(data=ser.data, status=status.HTTP_201_CREATED)

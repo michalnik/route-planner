@@ -32,7 +32,7 @@ urlpatterns = [
             permanent=False,  # to not to cache redirect in browser
         ),
     ),
-    path("api/<str:api_ver>/", include(("api.urls", "main"))),
+    path("api/<str:api_ver>/", include(("api.urls", "drf"))),
     path(f"ninja/{ninja_api.version}/", ninja_api.urls),
     path("admin/", admin.site.urls),
 ]
