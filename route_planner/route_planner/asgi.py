@@ -25,6 +25,7 @@ app = FastAPI(
         "Route planner API to find routes from **start** to **finish**. "
         "Final map with route drawn on it is then downloadable as HTML."
     ),
+    docs_url="/fastapi/v3/docs",
 )
 app.include_router(router, prefix="/fastapi/v3", tags=["Routes"])
 
