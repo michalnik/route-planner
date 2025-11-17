@@ -44,15 +44,11 @@ async def find_routes(route: RouteQuestion):
     from fastapi.exceptions import HTTPException
 
     try:
-        RoutePlannerService().find_routes(route.start, route.finish)
+        routes = RoutePlannerService().find_routes(route.start, route.finish)
     except ORSException as exc:
         error_details: list[dict[str, typing.Any]] = [{"msg": exc.message, "type": exc.code, "error": exc.data}]
         raise HTTPException(status_code=exc.status, detail=error_details)
-    return {
-        "start": route.start,
-        "finish": route.finish,
-        "routes": RoutePlannerService().find_routes(route.start, route.finish),
-    }
+    return {"start": route.start, "finish": route.finish, "routes": routes}
 
 
 @router.post("/geojson", response_model=GeoJsonAnswer, tags=["Routes"])
@@ -126,10 +122,16 @@ def create_map(request: Request, query: MapQuestion):
     }
     ```
     """
-    file = RoutePlannerService().create_map(
-        query.start,
-        query.finish,
-        query.title,
-        query.route_title,
-    )
+    from fastapi.exceptions import HTTPException
+
+    try:
+        file = RoutePlannerService().create_map(
+            query.start,
+            query.finish,
+            query.title,
+            query.route_title,
+        )
+    except ORSException as exc:
+        error_details: list[dict[str, typing.Any]] = [{"msg": exc.message, "type": exc.code, "error": exc.data}]
+        raise HTTPException(status_code=exc.status, detail=error_details)
     return {"map": build_absolute_url(request, file.url)}

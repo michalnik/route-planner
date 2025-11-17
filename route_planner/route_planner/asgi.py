@@ -34,6 +34,7 @@ app = FastAPI(
         "Final map with route drawn on it is then downloadable as HTML."
     ),
     docs_url="/fastapi/v3/docs",
+    openapi_url="/fastapi/v3/openapi.json",
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
