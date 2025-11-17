@@ -50,6 +50,8 @@ dev = [
     "isort",
     "mypy",
     "pre-commit",
+    "validate-pyproject",
+    "build",
 ]
 prod = ["gunicorn[gevent]"]
 
