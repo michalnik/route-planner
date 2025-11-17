@@ -25,6 +25,7 @@ dependencies = [
     "requests",
     "python-dotenv",
     "fastapi",
+    "slowapi",
     "uvicorn",
     "django",
     "django-ninja",

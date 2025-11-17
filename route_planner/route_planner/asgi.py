@@ -1,5 +1,8 @@
 import os
-import django
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from fastapi import FastAPI
 
 """
@@ -10,12 +13,17 @@ It exposes the ASGI callable as a module-level variable named ``application``.
 For more information on this file, see
 https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
+import django
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "route_planner.settings")
 django.setup()
 
 
 from django.conf import settings  # noqa: E402
 from api.fastapi_views import router  # noqa: E402
+
+
+limiter = Limiter(key_func=get_remote_address, default_limits=settings.FASTAPI_THROTTLING)
 
 
 app = FastAPI(
@@ -27,6 +35,10 @@ app = FastAPI(
     ),
     docs_url="/fastapi/v3/docs",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 app.include_router(router, prefix="/fastapi/v3", tags=["Routes"])
 
 

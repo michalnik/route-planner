@@ -166,6 +166,8 @@ REST_FRAMEWORK = {
     },
 }
 
+FASTAPI_THROTTLING = [f'{int_val.to_python(os.getenv("THROTTLE_RATES_IP_MIN"))}/minute']
+
 ROUTE = {
     "api_key": os.getenv("OPENROUTESERVICE_API_KEY"),
     "profile": os.getenv("OPENROUTESERVICE_PROFILE", "driving-hgv"),
