@@ -28,7 +28,7 @@ urlpatterns = [
     path(
         "",
         RedirectView.as_view(
-            url=reverse_lazy("main:route-find", kwargs={"api_ver": settings.REST_FRAMEWORK["DEFAULT_VERSION"]}),
+            url=reverse_lazy("drf:api-root", kwargs={"api_ver": settings.REST_FRAMEWORK["DEFAULT_VERSION"]}),
             permanent=False,  # to not to cache redirect in browser
         ),
     ),
