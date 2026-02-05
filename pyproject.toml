@@ -27,7 +27,7 @@ dependencies = [
     "fastapi",
     "slowapi",
     "uvicorn",
-    "django",
+    "django<6",
     "django-ninja",
     "django-extensions",
     "djangorestframework",
